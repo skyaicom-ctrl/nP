@@ -7,13 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* 기본 설정 및 테마 색상 */
         :root {
             --color-bg: #0a0a0f;
             --color-gold: #d4af37;
-            --color-gold-light: #fcd34d;
             --color-purple: #7c3aed;
-            --color-purple-glow: rgba(124, 58, 237, 0.5);
         }
 
         body {
@@ -21,15 +18,13 @@
             background-color: var(--color-bg);
             color: #ffffff;
             overflow-x: hidden;
-            user-select: none; /* 터치 환경 고려 */
+            user-select: none;
         }
 
-        /* 스크롤바 커스텀 */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1e1e24; }
         ::-webkit-scrollbar-thumb { background: var(--color-gold); border-radius: 4px; }
 
-        /* 애니메이션 */
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -44,41 +39,34 @@
             animation: shimmer 4s linear infinite;
         }
 
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .urgent-pulse { animation: urgentPulse 0.5s infinite; color: #ef4444 !important; text-shadow: 0 0 10px #ef4444; }
         @keyframes urgentPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
 
-        /* UI 컴포넌트 스타일 */
         .btn-gold {
             background: linear-gradient(135deg, var(--color-gold), #b48a10);
             color: #000;
             font-weight: 800;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
         }
-        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(212, 175, 55, 0.7); }
+        .btn-gold:active { transform: scale(0.95); }
         .btn-gold:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; transform: none; }
 
         .card-glass {
-            background: rgba(30, 30, 40, 0.7);
+            background: rgba(30, 30, 40, 0.8);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .highlight-row {
-            background: linear-gradient(90deg, rgba(124, 58, 237, 0.2), rgba(212, 175, 55, 0.1));
-            border-left: 4px solid var(--color-gold);
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center relative">
 
-    <!-- 상단 네비게이션 (인트로 제외 노출) -->
+    <!-- Header -->
     <header id="nav-header" class="fixed top-0 w-full p-4 flex justify-between items-center z-50 bg-black/50 backdrop-blur-md border-b border-white/10 hidden">
-        <div class="text-gold font-bold text-xl cursor-pointer" onclick="App.router('menu')">nPerspective 2026</div>
+        <div class="text-[#d4af37] font-bold text-xl cursor-pointer" onclick="App.router('menu')">nPerspective 2026</div>
         <div class="flex gap-4">
             <button onclick="App.resetData()" class="text-xs text-gray-500 hover:text-red-500">Reset System</button>
             <button onclick="App.router('schedule')" class="text-sm hover:text-purple-400">식순</button>
@@ -86,16 +74,15 @@
         </div>
     </header>
 
-    <!-- 메인 컨텐츠 영역 -->
+    <!-- Main Content -->
     <main id="app-root" class="w-full max-w-7xl px-4 py-20 flex flex-col items-center justify-center flex-grow">
-        <!-- 자바스크립트로 화면이 렌더링 됩니다 -->
+        <!-- Dynamic Content -->
     </main>
 
 <script>
-/**
- * DATA MODEL
- * 게임에 필요한 모든 데이터를 정의합니다.
- */
+/* -------------------------------------------------------------------------- */
+/* DATA MODEL                                 */
+/* -------------------------------------------------------------------------- */
 const GAME_DATA = {
     schedule: [
         { time: "05:00-05:30", title: "리셉션", desc: "참석자 등록 및 환영" },
@@ -106,107 +93,95 @@ const GAME_DATA = {
         { time: "07:45-10:00", title: "nP 학우들 서로 알아가기", desc: "레크리에이션 (Click to Start)", action: "menu" },
         { time: "10:00-", title: "더 깊이 알아가기", desc: "네트워킹" }
     ],
-    // Game 0: 40 Questions (생략 없이 생성)
-    game0_questions: Array.from({length: 40}, (_, i) => {
-        const qList = [
-            "바쁠 때도 이건 꼭 지키려고 하는 나만의 루틴이 있나요?", "하루 중 유난히 좋아하는 시간대가 있나요?", 
-            "여행을 간다면, 가장 중요한 우선순위는? (숙소/교통/음식/액티비티)", "갑자기 1주일의 휴가가 생긴다면 어디서 무엇을?",
-            "스트레스가 쌓일 때, 나만의 해소 방법이 있나요?", "다시 처음부터 배워보고 싶은 취미나 활동이 있나요?",
-            "휴대폰 사진첩에 제일 많은 사진은 보통 뭐예요?", "요즘 들어 조금 바뀌었다고 느끼는 나의 모습이 있나요?",
-            "요즘 나에게 소소한 즐거움 하나를 꼽는다면?", "올해는 나 자신에게 이런 시간을 더 주고 싶다는 게 있다면요?",
-            // 11~40 추가 생성 (문맥에 맞게 생성)
-            "내가 가장 좋아하는 계절과 그 이유는?", "최근에 가장 맛있게 먹은 음식은?",
-            "학창시절 가장 기억에 남는 에피소드는?", "나의 인생 영화 혹은 드라마는?",
-            "내가 가진 물건 중 가장 아끼는 것은?", "로또 1등에 당첨된다면 가장 먼저 할 일은?",
-            "나를 한 단어로 표현한다면?", "가장 존경하는 인물은 누구인가요?",
-            "아침형 인간인가요, 올빼미형 인간인가요?", "커피 vs 차, 당신의 선택은?",
-            "산 vs 바다, 당신의 휴가지 취향은?", "다시 태어난다면 어떤 직업을 갖고 싶나요?",
-            "가장 최근에 읽은 책은?", "주말에는 주로 무엇을 하며 시간을 보내나요?",
-            "나만의 소울 푸드는?", "어릴 적 장래희망은 무엇이었나요?",
-            "가장 기억에 남는 여행지는 어디인가요?", "노래방 애창곡 1번은?",
-            "팀원들에게 듣고 싶은 칭찬 한마디는?", "올해 꼭 이루고 싶은 목표 한 가지는?",
-            "나만의 건강 관리 비법이 있나요?", "가장 두려워하는 것은 무엇인가요?",
-            "지금 지갑에 현금은 얼마가 있나요?", "좋아하는 스포츠가 있나요?",
-            "탕수육은 부먹 vs 찍먹?", "가장 좋아하는 색깔은?",
-            "나에게 100억이 생긴다면?", "은퇴 후 살고 싶은 도시는?",
-            "가장 좋아하는 계절 음식은?", "오늘 회식 메뉴 추천 하나만 해주세요!"
-        ];
-        return qList[i] || "질문 데이터 로딩 중...";
-    }),
-    // Game 1: Slang Quiz (8 sets x 10 q)
+    // Game 0: 40 Questions
+    game0_questions: [
+        "바쁠 때도 이건 꼭 지키려고 하는 나만의 루틴이 있나요?", "하루 중 유난히 좋아하는 시간대가 있나요?", 
+        "여행을 간다면, 나에게 가장 중요한 우선순위는 무엇인가요?", "갑자기 1주일의 휴가가 생긴다면, 어디에서 누구와 무엇을 하고 싶으세요?",
+        "스트레스가 쌓일 때, 나만의 해소 방법이 있나요?", "다시 처음부터 배워보고 싶은 취미나 활동이 있나요?",
+        "휴대폰 사진첩에 제일 많은 사진은 보통 뭐예요?", "요즘 들어 조금 바뀌었다고 느끼는 나의 모습이 있나요?",
+        "요즘 나에게 소소한 즐거움 하나를 꼽는다면 뭐가 있을까요?", "올해는 나 자신에게 이런 시간을 더 주고 싶다는 게 있다면요?",
+        "가장 기억에 남는 인생 영화는 무엇인가요?", "학창시절 가장 기억에 남는 에피소드는?",
+        "내가 가진 물건 중 가장 오래된 애장품은?", "나를 한 단어로 표현한다면?",
+        "아침형 인간인가요, 올빼미형 인간인가요?", "탕수육은 부먹 vs 찍먹?",
+        "가장 좋아하는 계절과 그 이유는?", "죽기 전에 꼭 가보고 싶은 여행지는?",
+        "나만의 소울 푸드는 무엇인가요?", "최근에 가장 크게 웃었던 일은?",
+        "로또 1등에 당첨된다면 가장 먼저 할 일은?", "어릴 적 장래희망은 무엇이었나요?",
+        "가장 존경하는 인물은 누구인가요?", "주말에는 주로 무엇을 하며 시간을 보내나요?",
+        "노래방 애창곡 18번은?", "팀원들에게 듣고 싶은 칭찬 한마디는?",
+        "올해 꼭 이루고 싶은 목표 한 가지는?", "가장 두려워하는 것은 무엇인가요?",
+        "지금 지갑에 현금은 얼마가 있나요?", "좋아하는 스포츠가 있나요?",
+        "다시 태어난다면 어떤 직업을 갖고 싶나요?", "가장 좋아하는 색깔은?",
+        "나에게 100억이 생긴다면?", "은퇴 후 살고 싶은 도시는?",
+        "가장 좋아하는 계절 음식은?", "오늘 회식 메뉴 추천 하나만 해주세요!",
+        "최근에 읽은 책 중 추천하고 싶은 것은?", "나만의 건강 관리 비법이 있다면?",
+        "가장 좋아하는 디저트는?", "오늘 이 자리에 온 소감 한마디!"
+    ],
+    // Game 1: Quiz (8 Sets x 10)
     game1_sets: [
-        // Set 1
-        [
-            {q:"갓생", a:"신(God)+인생. 부지런하고 타의 모범이 되는 삶"}, {q:"알잘딱깔센", a:"알아서 잘 딱 깔끔하고 센스있게"},
+        [ // Set 1
+            {q:"갓생", a:"신(God)+인생. 부지런한 삶"}, {q:"알잘딱깔센", a:"알아서 잘 딱 깔끔하고 센스있게"},
             {q:"스불재", a:"스스로 불러온 재앙"}, {q:"중꺾마", a:"중요한 건 꺾이지 않는 마음"},
             {q:"만반잘부", a:"만나서 반가워 잘 부탁해"}, {q:"꾸안꾸", a:"꾸민 듯 안 꾸민 듯"},
-            {q:"억텐", a:"억지 텐션 (억지로 흥을 냄)"}, {q:"완내스", a:"완전 내 스타일"},
-            {q:"군싹", a:"군침이 싹 도네"}, {q:"머선129", a:"무슨 일이고? (무슨 일이야?)"}
+            {q:"억텐", a:"억지 텐션"}, {q:"완내스", a:"완전 내 스타일"},
+            {q:"군싹", a:"군침이 싹 도네"}, {q:"머선129", a:"무슨 일이고?"}
         ],
-        // Set 2
-        [
+        [ // Set 2
             {q:"분좋카", a:"분위기 좋은 카페"}, {q:"캘박", a:"캘린더 박제 (일정 저장)"},
             {q:"복세편살", a:"복잡한 세상 편하게 살자"}, {q:"별다줄", a:"별걸 다 줄인다"},
             {q:"비담", a:"비주얼 담당"}, {q:"삼귀다", a:"사귀기 전 단계 (썸)"},
             {q:"어쩔티비", a:"어쩌라고 TV나 봐"}, {q:"저메추", a:"저녁 메뉴 추천"},
             {q:"킹받네", a:"열받네 (킹+열받네)"}, {q:"마상", a:"마음의 상처"}
         ],
-        // Set 3
-        [
+        [ // Set 3
             {q:"갑분싸", a:"갑자기 분위기 싸해짐"}, {q:"이생망", a:"이번 생은 망했다"},
             {q:"소확행", a:"소소하지만 확실한 행복"}, {q:"얼죽아", a:"얼어 죽어도 아이스 아메리카노"},
             {q:"엄근진", a:"엄격 근엄 진지"}, {q:"자만추", a:"자연스러운 만남 추구"},
-            {q:"최애", a:"가장 사랑함 (최고로 애정함)"}, {q:"TMI", a:"Too Much Information (너무 과한 정보)"},
+            {q:"최애", a:"가장 사랑함"}, {q:"TMI", a:"Too Much Information"},
             {q:"케바케", a:"케이스 바이 케이스"}, {q:"할많하않", a:"할 말은 많지만 하지 않겠다"}
         ],
-        // Set 4
-        [
+        [ // Set 4
             {q:"내로남불", a:"내가 하면 로맨스 남이 하면 불륜"}, {q:"답정너", a:"답은 정해져 있고 너는 대답만 해"},
-            {q:"라떼는말이야", a:"나 때는 말이야 (꼰대 풍자)"}, {q:"무물", a:"무엇이든 물어보세요"},
+            {q:"라떼는말이야", a:"나 때는 말이야 (꼰대)"}, {q:"무물", a:"무엇이든 물어보세요"},
             {q:"반모", a:"반말 모드"}, {q:"빼박", a:"빼도 박도 못하다"},
-            {q:"성덕", a:"성공한 덕후"}, {q:"인싸", a:"인사이더 (잘 어울리는 사람)"},
+            {q:"성덕", a:"성공한 덕후"}, {q:"인싸", a:"인사이더"},
             {q:"아싸", a:"아웃사이더"}, {q:"워라밸", a:"Work and Life Balance"}
         ],
-        // Set 5
-        [
+        [ // Set 5
             {q:"좋댓구알", a:"좋아요 댓글 구독 알림설정"}, {q:"구취", a:"구독 취소"},
             {q:"슬세권", a:"슬리퍼 신고 갈 수 있는 거리"}, {q:"스벅", a:"스타벅스"},
             {q:"맥날", a:"맥도날드"}, {q:"베라", a:"배스킨라빈스"},
             {q:"페북", a:"페이스북"}, {q:"인별", a:"인스타그램"},
             {q:"트윗", a:"트위터"}, {q:"톡디", a:"카카오톡 아이디"}
         ],
-        // Set 6
-        [
+        [ // Set 6
             {q:"낄낄빠빠", a:"낄 때 끼고 빠질 때 빠져라"}, {q:"사바사", a:"사람 바이 사람"},
             {q:"애빼시", a:"애교 빼면 시체"}, {q:"혼코노", a:"혼자 코인 노래방"},
             {q:"영끌", a:"영혼까지 끌어모음"}, {q:"빚투", a:"빚내서 투자"},
             {q:"떡상", a:"가격이 급격히 오름"}, {q:"떡락", a:"가격이 급격히 떨어짐"},
             {q:"존버", a:"X나게 버티기"}, {q:"갓생살기", a:"부지런하게 열심히 살기"}
         ],
-        // Set 7
-        [
+        [ // Set 7
             {q:"당모치", a:"당연히 모든 치킨은 옳다"}, {q:"맛점", a:"맛있는 점심"},
             {q:"맛저", a:"맛있는 저녁"}, {q:"즐점", a:"즐거운 점심"},
             {q:"혼밥", a:"혼자 밥먹기"}, {q:"혼술", a:"혼자 술마시기"},
             {q:"불금", a:"불타는 금요일"}, {q:"칼퇴", a:"칼같이 퇴근"},
             {q:"월급루팡", a:"하는 일 없이 월급만 축내는 사람"}, {q:"순삭", a:"순식간에 삭제"}
         ],
-        // Set 8
-        [
-            {q:"득템", a:"아이템을 얻음 (좋은 물건 획득)"}, {q:"레어템", a:"희귀한 아이템"},
+        [ // Set 8
+            {q:"득템", a:"아이템 획득"}, {q:"레어템", a:"희귀한 아이템"},
             {q:"품절남", a:"결혼한 남자"}, {q:"품절녀", a:"결혼한 여자"},
             {q:"돌싱", a:"돌아온 싱글"}, {q:"썸", a:"사귀기 전 미묘한 관계"},
             {q:"어장관리", a:"여러 이성을 동시에 관리함"}, {q:"모솔", a:"모태 솔로"},
             {q:"금사빠", a:"금방 사랑에 빠지는 사람"}, {q:"읽씹", a:"읽고 씹음 (답장 안함)"}
         ]
     ],
-    // Game 2 Items (난이도별)
+    // Game 2 Items
     game2_items: {
         3: { name: "와인 코르크", desc: "3점" },
         5: { name: "탁구공", desc: "5점" },
         7: { name: "플라스틱 와인잔", desc: "7점" }
     },
-    // Game 3 Words (난이도별 4세트)
+    // Game 3 Words
     game3_sets: {
         A: { score: 5, sets: [
             ["비행기", "골프채", "와인잔", "넥타이", "시계"],
@@ -229,10 +204,9 @@ const GAME_DATA = {
     }
 };
 
-/**
- * APP ENGINE
- * 상태 관리 및 렌더링 로직
- */
+/* -------------------------------------------------------------------------- */
+/* APP ENGINE                                  */
+/* -------------------------------------------------------------------------- */
 const App = {
     state: {
         scene: 'intro',
@@ -245,12 +219,13 @@ const App = {
         game0: { used: [] },
         game1: { usedSets: [] },
         game2: { teamChoices: {1:null, 2:null, 3:null, 4:null}, completed: [] },
-        game3: { usedSets: [] }, // "A-0", "B-1" 등 저장
+        game3: { usedSets: [] },
         
-        // Runtime Temp State
+        // Temp Runtime State
         currentGame: null, 
         timer: null,
-        timerVal: 0
+        timerVal: 0,
+        lastResult: null
     },
 
     init() {
@@ -258,14 +233,14 @@ const App = {
         if(saved) {
             try {
                 this.state = JSON.parse(saved);
-                // 타이머는 저장되지 않으므로 초기화
-                this.state.timer = null;
-                // 게임 중이었다면 메뉴로 리셋 (오류 방지)
-                if(this.state.scene.includes('_play') || this.state.scene.includes('_result')) {
+                this.state.timer = null; // 타이머는 초기화
+                
+                // 플레이 중이었던 상태라면 안전하게 메뉴나 결과화면으로 리셋
+                if(this.state.scene.includes('_play')) {
                     this.state.scene = 'menu';
                 }
             } catch(e) {
-                console.error("Save Load Error", e);
+                console.error("Load Error:", e);
                 localStorage.removeItem('nP2026State');
             }
         }
@@ -273,30 +248,29 @@ const App = {
     },
 
     save() {
-        // 타이머 객체 제외하고 저장
-        const toSave = {...this.state, timer: null};
+        // 타이머 제외 저장
+        const toSave = { ...this.state, timer: null };
         localStorage.setItem('nP2026State', JSON.stringify(toSave));
     },
 
     resetData() {
-        if(confirm("모든 데이터가 초기화됩니다. 진행하시겠습니까?")) {
+        if(confirm("모든 점수와 진행 상황이 초기화됩니다. 진행하시겠습니까?")) {
             localStorage.removeItem('nP2026State');
             location.reload();
         }
     },
 
     router(sceneName) {
-        clearInterval(this.state.timer); // 화면 전환 시 타이머 정지
+        if(this.state.timer) clearInterval(this.state.timer);
         this.state.scene = sceneName;
         this.save();
         this.render();
     },
 
-    // 점수 조작
-    updateScore(teamId, points) {
+    // 점수 추가 (저장은 호출하는 쪽에서 명시적으로 수행 - 무한루프 방지)
+    addScore(teamId, points) {
         const team = this.state.teams.find(t => t.id == teamId);
         if(team) team.score += points;
-        this.save();
     },
 
     updateTeamName(id, name) {
@@ -305,73 +279,71 @@ const App = {
         this.save();
     },
 
-    // 렌더링 메인 함수
     render() {
         const root = document.getElementById('app-root');
         const nav = document.getElementById('nav-header');
         
-        // 네비게이션바 토글
         if(this.state.scene === 'intro') nav.classList.add('hidden');
         else nav.classList.remove('hidden');
 
-        root.innerHTML = ''; // Clear
+        root.innerHTML = '';
 
         try {
             switch(this.state.scene) {
                 case 'intro': this.renderIntro(root); break;
                 case 'schedule': this.renderSchedule(root); break;
                 case 'menu': this.renderMenu(root); break;
+                
                 case 'game0': this.renderGame0(root); break;
                 case 'game0_q': this.renderGame0Q(root); break;
+                
                 case 'game1': this.renderGame1Select(root); break;
                 case 'game1_play': this.renderGame1Play(root); break;
-                case 'game1_result': this.renderGame1Result(root); break;
+                case 'game1_result': this.renderResult(root, 'game1'); break;
+                
                 case 'game2': this.renderGame2Select(root); break;
                 case 'game2_play': this.renderGame2Play(root); break;
+                case 'game2_result': this.renderResult(root, 'game2'); break;
+                
                 case 'game3': this.renderGame3SelectTeam(root); break;
                 case 'game3_setup': this.renderGame3Setup(root); break;
                 case 'game3_play': this.renderGame3Play(root); break;
-                case 'game3_result': this.renderGame3Result(root); break;
-                default: root.innerHTML = `<h1 class="text-3xl text-red-500">Error: Unknown Scene</h1>`;
+                case 'game3_result': this.renderResult(root, 'game3'); break;
+                
+                default: root.innerHTML = `<h1 class="text-red-500">Error: Unknown Scene</h1>`;
             }
         } catch (e) {
             console.error(e);
-            root.innerHTML = `<div class="text-center text-red-500"><h1>오류 발생</h1><p>${e.message}</p><button onclick="App.resetData()" class="mt-4 border p-2">데이터 초기화</button></div>`;
+            root.innerHTML = `<div class="text-center text-red-500">오류가 발생했습니다.<br><button onclick="App.resetData()" class="border p-2 mt-4">데이터 초기화</button></div>`;
         }
     },
 
-    // --- SCENE RENDERERS ---
+    // --- Renderers ---
 
     renderIntro(el) {
         el.innerHTML = `
-            <div class="text-center fade-in flex flex-col items-center h-full justify-center">
+            <div class="text-center fade-in flex flex-col items-center justify-center h-full">
                 <h2 class="text-2xl text-purple-400 mb-2 tracking-widest">New Perspective, New Beginning</h2>
                 <h1 class="text-6xl md:text-8xl font-black mb-12 text-shimmer leading-tight">nPerspective<br>2026 신년회</h1>
                 <button onclick="App.router('schedule')" class="btn-gold px-12 py-4 rounded-full text-xl shadow-lg animate-bounce">
-                    ENTER EVENT
+                    입장하기
                 </button>
             </div>
         `;
     },
 
     renderSchedule(el) {
-        const now = new Date(); // 현재 시간 하이라이트용 (시뮬레이션 아님)
-        // 실제 사용을 위해 19:45 등으로 가정하고 테스트하거나 현재 시간 사용
-        // 여기선 단순 리스트 출력
-        
         let html = `
             <div class="w-full max-w-4xl fade-in">
-                <h2 class="text-4xl font-bold text-center mb-10 text-shimmer">EVENT SCHEDULE</h2>
+                <h2 class="text-4xl font-bold text-center mb-10 text-[#d4af37]">EVENT SCHEDULE</h2>
                 <div class="space-y-4">
         `;
-        
         GAME_DATA.schedule.forEach(item => {
-            const isAction = item.action ? 'cursor-pointer hover:scale-[1.02] border-gold' : 'border-gray-700';
+            const isAction = item.action ? 'cursor-pointer hover:border-[#d4af37] border-purple-500' : 'border-gray-700';
             const actionAttr = item.action ? `onclick="App.router('${item.action}')"` : '';
-            
             html += `
                 <div class="card-glass p-6 rounded-xl border ${isAction} transition-all flex flex-col md:flex-row items-center" ${actionAttr}>
-                    <div class="w-32 text-gold font-bold text-lg mb-2 md:mb-0">${item.time}</div>
+                    <div class="w-32 text-[#d4af37] font-bold text-lg mb-2 md:mb-0">${item.time}</div>
                     <div class="flex-1 text-center md:text-left">
                         <div class="text-2xl font-bold text-white">${item.title}</div>
                         <div class="text-gray-400">${item.desc}</div>
@@ -384,14 +356,13 @@ const App = {
     },
 
     renderMenu(el) {
-        // 팀 점수판
         let boardHtml = '';
         this.state.teams.forEach(t => {
             boardHtml += `
                 <div class="bg-gray-800/80 p-4 rounded-xl text-center border border-gray-600">
                     <input type="text" value="${t.name}" onchange="App.updateTeamName(${t.id}, this.value)" 
-                        class="bg-transparent text-center text-xl font-bold text-white w-full border-b border-transparent focus:border-gold outline-none mb-2">
-                    <div class="text-4xl font-black text-gold">${t.score}</div>
+                        class="bg-transparent text-center text-xl font-bold text-white w-full border-b border-transparent focus:border-[#d4af37] outline-none mb-2">
+                    <div class="text-4xl font-black text-[#d4af37]">${t.score}</div>
                     <div class="text-xs text-gray-500">POINTS</div>
                 </div>
             `;
@@ -399,552 +370,405 @@ const App = {
 
         el.innerHTML = `
             <div class="w-full max-w-6xl fade-in flex flex-col gap-10">
-                <h2 class="text-4xl font-bold text-center text-white mb-4">GAME MENU</h2>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <button onclick="App.router('game0')" class="h-60 card-glass rounded-2xl p-6 hover:bg-white/10 transition-all group flex flex-col items-center justify-center border border-purple-500/30">
+                    <button onclick="App.router('game0')" class="h-60 card-glass rounded-2xl p-6 hover:bg-white/5 transition-all group flex flex-col items-center justify-center border border-purple-500/30">
                         <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">🃏</div>
-                        <div class="text-2xl font-bold text-gold mb-2">Game 0</div>
-                        <div class="text-gray-300">우리, 서로 알아가요</div>
-                        <div class="text-xs text-gray-500 mt-2">개인전 / 아이스브레이킹</div>
+                        <div class="text-2xl font-bold text-[#d4af37] mb-2">Game 0</div>
+                        <div class="text-gray-300">서로 알아가요</div>
                     </button>
-                    <button onclick="App.router('game1')" class="h-60 card-glass rounded-2xl p-6 hover:bg-white/10 transition-all group flex flex-col items-center justify-center border border-purple-500/30">
+                    <button onclick="App.router('game1')" class="h-60 card-glass rounded-2xl p-6 hover:bg-white/5 transition-all group flex flex-col items-center justify-center border border-purple-500/30">
                         <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">🧠</div>
-                        <div class="text-2xl font-bold text-gold mb-2">Game 1</div>
+                        <div class="text-2xl font-bold text-[#d4af37] mb-2">Game 1</div>
                         <div class="text-gray-300">신조어 퀴즈</div>
-                        <div class="text-xs text-gray-500 mt-2">팀별 / 2분 제한</div>
                     </button>
-                    <button onclick="App.router('game2')" class="h-60 card-glass rounded-2xl p-6 hover:bg-white/10 transition-all group flex flex-col items-center justify-center border border-purple-500/30">
+                    <button onclick="App.router('game2')" class="h-60 card-glass rounded-2xl p-6 hover:bg-white/5 transition-all group flex flex-col items-center justify-center border border-purple-500/30">
                         <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">🤲</div>
-                        <div class="text-2xl font-bold text-gold mb-2">Game 2</div>
+                        <div class="text-2xl font-bold text-[#d4af37] mb-2">Game 2</div>
                         <div class="text-gray-300">손등 릴레이</div>
-                        <div class="text-xs text-gray-500 mt-2">팀별 / 난이도 선택</div>
                     </button>
-                    <button onclick="App.router('game3')" class="h-60 card-glass rounded-2xl p-6 hover:bg-white/10 transition-all group flex flex-col items-center justify-center border border-purple-500/30">
+                    <button onclick="App.router('game3')" class="h-60 card-glass rounded-2xl p-6 hover:bg-white/5 transition-all group flex flex-col items-center justify-center border border-purple-500/30">
                         <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">🎨</div>
-                        <div class="text-2xl font-bold text-gold mb-2">Game 3</div>
+                        <div class="text-2xl font-bold text-[#d4af37] mb-2">Game 3</div>
                         <div class="text-gray-300">줄줄이 그려요</div>
-                        <div class="text-xs text-gray-500 mt-2">팀별 / 그림 릴레이</div>
                     </button>
                 </div>
-
-                <div class="mt-8">
+                <div>
                     <h3 class="text-center text-gray-400 mb-4 tracking-widest text-sm">LIVE SCOREBOARD</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        ${boardHtml}
-                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">${boardHtml}</div>
                 </div>
             </div>
         `;
     },
 
-    // === GAME 0: 서로 알아가요 ===
+    // --- Game 0 ---
     renderGame0(el) {
-        let gridHtml = '';
+        let grid = '';
         for(let i=1; i<=40; i++) {
-            const isUsed = this.state.game0.used.includes(i);
-            gridHtml += `
-                <button onclick="App.runGame0(${i})" ${isUsed ? 'disabled' : ''} 
-                    class="aspect-square rounded-lg text-xl font-bold transition-all flex items-center justify-center
-                    ${isUsed ? 'bg-gray-800 text-gray-600 border border-gray-700' : 'bg-purple-900/40 text-white border border-purple-500 hover:bg-gold hover:text-black hover:scale-110 shadow-lg'}">
-                    ${i}
-                </button>
-            `;
+            const used = this.state.game0.used.includes(i);
+            grid += `<button onclick="App.runGame0(${i})" ${used?'disabled':''} class="aspect-square rounded-lg text-xl font-bold flex items-center justify-center transition-all ${used?'bg-gray-800 text-gray-600':'bg-purple-900/40 border border-purple-500 hover:bg-[#d4af37] hover:text-black hover:scale-110'}">${i}</button>`;
         }
-
         el.innerHTML = `
             <div class="w-full max-w-5xl fade-in flex flex-col items-center">
-                <h2 class="text-3xl font-bold text-gold mb-2">Game 0. 우리, 서로 알아가요</h2>
+                <h2 class="text-3xl font-bold text-[#d4af37] mb-2">Game 0. 우리, 서로 알아가요</h2>
                 <p class="text-gray-400 mb-8">번호를 선택하여 질문에 답해주세요 (30초)</p>
-                <div class="grid grid-cols-5 md:grid-cols-8 gap-3 w-full mb-8">
-                    ${gridHtml}
-                </div>
-                <button onclick="App.router('menu')" class="text-gray-500 hover:text-white underline mt-4">게임 종료</button>
+                <div class="grid grid-cols-5 md:grid-cols-8 gap-3 w-full mb-8">${grid}</div>
+                <button onclick="App.router('menu')" class="text-gray-500 underline">메뉴로 돌아가기</button>
             </div>
         `;
     },
-
     runGame0(num) {
         this.state.currentGame = { type: 0, num: num };
         this.router('game0_q');
     },
-
     renderGame0Q(el) {
-        const qIdx = this.state.currentGame.num - 1;
-        const question = GAME_DATA.game0_questions[qIdx];
-
+        const q = GAME_DATA.game0_questions[this.state.currentGame.num - 1] || "질문 오류";
         el.innerHTML = `
-            <div class="w-full max-w-4xl fade-in flex flex-col items-center justify-center min-h-[60vh] text-center">
-                <div class="text-9xl font-black text-gray-800 absolute z-[-1] select-none opacity-50">${this.state.currentGame.num}</div>
-                <h3 class="text-2xl text-purple-400 mb-8">Question No.${this.state.currentGame.num}</h3>
-                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-12 break-keep">${question}</h1>
-                <div class="w-full bg-gray-800 h-2 rounded-full mb-12 overflow-hidden">
-                    <div class="bg-gold h-full w-full" style="animation: width 30s linear forwards;"></div>
-                </div>
+            <div class="w-full max-w-4xl fade-in text-center flex flex-col items-center justify-center min-h-[60vh]">
+                <div class="text-9xl font-black text-gray-800 absolute z-[-1] opacity-50">${this.state.currentGame.num}</div>
+                <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-12 break-keep">${q}</h1>
+                <div class="w-full bg-gray-800 h-2 rounded-full mb-12 overflow-hidden"><div class="bg-[#d4af37] h-full w-full" style="animation: width 30s linear forwards;"></div></div>
                 <style>@keyframes width { from { width: 100%; } to { width: 0%; } }</style>
                 <button onclick="App.finishGame0(${this.state.currentGame.num})" class="btn-gold px-12 py-4 rounded-full text-xl">답변 종료</button>
             </div>
         `;
     },
-
     finishGame0(num) {
-        if(!this.state.game0.used.includes(num)) {
-            this.state.game0.used.push(num);
-        }
+        if(!this.state.game0.used.includes(num)) this.state.game0.used.push(num);
         this.router('game0');
     },
 
-    // === GAME 1: 신조어 퀴즈 ===
+    // --- Game 1 ---
     renderGame1Select(el) {
-        const teamOpts = this.state.teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-        
-        let setsHtml = '';
+        const opts = this.state.teams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+        let sets = '';
         for(let i=1; i<=8; i++) {
-            const isUsed = this.state.game1.usedSets.includes(i);
-            setsHtml += `
-                <button onclick="App.runGame1Start(${i})" ${isUsed ? 'disabled' : ''}
-                    class="h-24 rounded-xl border flex flex-col items-center justify-center transition-all
-                    ${isUsed ? 'bg-gray-800 border-gray-700 text-gray-600' : 'bg-gray-800/50 border-gold text-gold hover:bg-gold hover:text-black'}">
-                    <span class="text-xl font-bold">SET ${i}</span>
-                    <span class="text-xs">${isUsed ? '완료' : '선택'}</span>
-                </button>
-            `;
+            const used = this.state.game1.usedSets.includes(i);
+            sets += `<button onclick="App.runGame1(${i})" ${used?'disabled':''} class="h-24 rounded-xl border flex flex-col items-center justify-center ${used?'bg-gray-800 border-gray-700 text-gray-600':'bg-gray-800/50 border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black'}"><span class="text-xl font-bold">SET ${i}</span><span class="text-xs">${used?'완료':'선택'}</span></button>`;
         }
-
         el.innerHTML = `
             <div class="w-full max-w-2xl fade-in text-center">
-                <h2 class="text-3xl font-bold text-gold mb-2">Game 1. 단체 몸풀기 게임</h2>
-                <p class="text-gray-400 mb-8">제시어 설명 퀴즈 (팀당 2분)</p>
-                
-                <div class="mb-8 bg-gray-900 p-6 rounded-xl border border-gray-700">
-                    <label class="block text-left text-gray-400 text-sm mb-2">도전할 팀 선택</label>
-                    <select id="g1-team" class="w-full p-4 bg-black border border-purple-500 rounded-lg text-white text-xl">
-                        ${teamOpts}
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-4 gap-4 mb-8">
-                    ${setsHtml}
-                </div>
-                <button onclick="App.router('menu')" class="text-gray-500 hover:text-white underline">메뉴로 돌아가기</button>
+                <h2 class="text-3xl font-bold text-[#d4af37] mb-6">Game 1. 신조어 퀴즈</h2>
+                <div class="mb-8 bg-gray-900 p-6 rounded-xl border border-gray-700"><label class="block text-left text-gray-400 text-sm mb-2">팀 선택</label><select id="g1-team" class="w-full p-4 bg-black border border-purple-500 rounded-lg text-white text-xl">${opts}</select></div>
+                <div class="grid grid-cols-4 gap-4 mb-8">${sets}</div>
+                <button onclick="App.router('menu')" class="text-gray-500 underline">메뉴로 돌아가기</button>
             </div>
         `;
     },
-
-    runGame1Start(setNum) {
+    runGame1(setNum) {
         const teamId = document.getElementById('g1-team').value;
-        this.state.currentGame = {
-            type: 1,
-            setNum: setNum,
-            teamId: teamId,
-            qIndex: 0,
-            score: 0,
-            timer: 120 // 2분
-        };
-        
+        this.state.currentGame = { type: 1, setNum, teamId, qIndex: 0, score: 0 };
+        this.state.timerVal = 120; // 초기화
         this.router('game1_play');
-        this.startGameTimer(120, () => this.router('game1_result')); // 2분 타이머 시작
+        this.startTimer(120, () => this.finishGame1(true)); 
     },
-
     renderGame1Play(el) {
         const game = this.state.currentGame;
-        const set = GAME_DATA.game1_sets[game.setNum - 1]; // Set index
-        const currentQ = set[game.qIndex];
-
-        // 마지막 문제 체크는 여기서 하지 않고 버튼 액션에서 처리
+        const set = GAME_DATA.game1_sets[game.setNum - 1];
+        const q = set[game.qIndex];
+        
+        // 현재 남은 시간을 바로 사용
+        const t = this.state.timerVal;
+        const m = Math.floor(t/60).toString().padStart(2,'0');
+        const s = (t%60).toString().padStart(2,'0');
+        const timeStr = `${m}:${s}`;
         
         el.innerHTML = `
-            <div class="w-full max-w-4xl fade-in flex flex-col items-center justify-center min-h-[70vh] relative text-center">
-                <div class="absolute top-0 right-0 text-gold font-mono text-4xl font-bold" id="timer-display">02:00</div>
-                
+            <div class="w-full max-w-4xl fade-in text-center flex flex-col items-center justify-center min-h-[70vh]">
+                <div class="absolute top-0 right-0 text-[#d4af37] font-mono text-4xl font-bold" id="timer-display">${timeStr}</div>
                 <div class="text-gray-500 mb-4 font-bold tracking-widest">SET ${game.setNum} - Q${game.qIndex+1}/10</div>
-                
                 <div class="bg-white text-black px-20 py-16 rounded-3xl mb-12 w-full shadow-[0_0_50px_rgba(255,255,255,0.2)]">
-                    <div class="text-6xl md:text-8xl font-black mb-4">${currentQ.q}</div>
-                    <div id="ans-area" class="text-2xl text-purple-700 font-bold opacity-0 transition-opacity">${currentQ.a}</div>
+                    <div class="text-6xl md:text-8xl font-black mb-4">${q.q}</div>
+                    <div id="ans" class="text-2xl text-purple-700 font-bold opacity-0 transition-opacity">${q.a}</div>
                 </div>
-
                 <div class="flex gap-4">
-                    <button onclick="document.getElementById('ans-area').classList.remove('opacity-0')" class="px-8 py-4 border border-gray-500 rounded-xl hover:bg-gray-800">정답 확인</button>
-                    <button onclick="App.game1Action(true)" class="px-8 py-4 bg-green-600 rounded-xl font-bold text-xl hover:bg-green-500 shadow-lg">정답 (+5점)</button>
+                    <button onclick="document.getElementById('ans').classList.remove('opacity-0')" class="px-8 py-4 border border-gray-500 rounded-xl hover:bg-gray-800">정답 확인</button>
+                    <button onclick="App.game1Action(true)" class="px-8 py-4 bg-green-600 rounded-xl font-bold text-xl hover:bg-green-500 shadow-lg">정답 (+5)</button>
                     <button onclick="App.game1Action(false)" class="px-8 py-4 bg-red-600 rounded-xl font-bold text-xl hover:bg-red-500 shadow-lg">패스/오답</button>
                 </div>
             </div>
         `;
     },
-
     game1Action(isCorrect) {
-        if(isCorrect) this.state.currentGame.score += 5;
-        this.state.currentGame.qIndex++;
-        
-        // 10문제 다 풀었으면 종료
-        if(this.state.currentGame.qIndex >= 10) {
-            this.router('game1_result');
-        } else {
-            this.save();
-            // 화면 부분 갱신 대신 전체 리렌더링 (간단함 유지)
-            this.renderGame1Play(document.getElementById('app-root'));
-        }
-    },
-
-    renderGame1Result(el) {
-        clearInterval(this.state.timer);
         const game = this.state.currentGame;
+        if(isCorrect) game.score += 5;
+        game.qIndex++;
         
-        // 결과 처리 (한 번만 실행되도록 체크)
+        // 시간 종료가 아닌, 문제를 모두 푼 경우 finishGame1(false) 호출
+        if(game.qIndex >= 10) this.finishGame1(false);
+        else { this.save(); this.render(); } // 화면 갱신 (리렌더링)
+    },
+    finishGame1(isTimeOut = false) {
+        if(this.state.timer) clearInterval(this.state.timer);
+        const game = this.state.currentGame;
         if(!this.state.game1.usedSets.includes(game.setNum)) {
             this.state.game1.usedSets.push(game.setNum);
-            this.updateScore(game.teamId, game.score);
+            this.addScore(game.teamId, game.score);
         }
-
-        const teamName = this.state.teams.find(t=>t.id == game.teamId).name;
-
-        el.innerHTML = `
-            <div class="text-center fade-in">
-                <h2 class="text-4xl font-bold text-gold mb-8">Game Over!</h2>
-                <div class="text-2xl mb-4 text-gray-300">${teamName}</div>
-                <div class="text-8xl font-black text-white mb-12">${game.score} 점</div>
-                <button onclick="App.router('game1')" class="btn-gold px-12 py-4 rounded-full text-xl">다음 팀 준비</button>
-            </div>
-        `;
+        
+        // 결과 화면 메시지 분기 처리
+        const title = isTimeOut ? "Time's Up!" : "Mission Clear!";
+        const desc = isTimeOut ? "제한 시간 종료 (남은 문제 패스)" : "모든 문제 풀이 완료!";
+        
+        this.state.lastResult = { 
+            title: title, 
+            team: this.state.teams.find(t=>t.id==game.teamId).name, 
+            score: game.score, 
+            desc: desc,
+            next: 'game1' 
+        };
+        this.router('game1_result');
     },
 
-    // === GAME 2: 손등 릴레이 ===
+    // --- Game 2 ---
     renderGame2Select(el) {
         const teams = this.state.teams;
-        const choices = this.state.game2.teamChoices;
+        const allSelected = teams.every(t => this.state.game2.teamChoices[t.id]);
+        let grid = '';
         
-        // 모든 팀이 선택했는지 확인
-        const allSelected = teams.every(t => choices[t.id]);
-        
-        let gridHtml = '';
         teams.forEach(t => {
-            const choice = choices[t.id];
-            const isCompleted = this.state.game2.completed.includes(t.id);
+            const choice = this.state.game2.teamChoices[t.id];
+            const done = this.state.game2.completed.includes(t.id);
+            let content = '';
             
-            let innerHtml = '';
             if(!choice) {
-                // 선택 전
-                innerHtml = `
-                    <div class="text-gray-400 mb-4">난이도(점수) 선택</div>
+                content = `
+                    <div class="text-gray-400 mb-4">난이도 선택</div>
                     <div class="flex gap-2 justify-center">
-                        <button onclick="App.setGame2Choice(${t.id}, 3)" class="px-4 py-2 border border-green-500 rounded hover:bg-green-900">3</button>
-                        <button onclick="App.setGame2Choice(${t.id}, 5)" class="px-4 py-2 border border-blue-500 rounded hover:bg-blue-900">5</button>
-                        <button onclick="App.setGame2Choice(${t.id}, 7)" class="px-4 py-2 border border-red-500 rounded hover:bg-red-900">7</button>
-                    </div>
-                `;
+                        <button onclick="App.setGame2Choice(${t.id}, 3)" class="px-3 py-1 border border-green-500 rounded hover:bg-green-900">3</button>
+                        <button onclick="App.setGame2Choice(${t.id}, 5)" class="px-3 py-1 border border-blue-500 rounded hover:bg-blue-900">5</button>
+                        <button onclick="App.setGame2Choice(${t.id}, 7)" class="px-3 py-1 border border-red-500 rounded hover:bg-red-900">7</button>
+                    </div>`;
             } else if (!allSelected) {
-                // 선택 완료, 대기 중
-                innerHtml = `<div class="text-2xl font-bold text-gray-500">선택 완료</div>`;
+                content = `<div class="text-2xl font-bold text-gray-500">선택 완료</div>`;
             } else {
-                // 전체 공개 및 플레이 버튼
                 const item = GAME_DATA.game2_items[choice];
-                innerHtml = `
-                    <div class="text-gold text-2xl font-bold mb-1">${choice}점</div>
+                content = `
+                    <div class="text-[#d4af37] text-2xl font-bold mb-1">${choice}점</div>
                     <div class="text-white text-lg font-bold mb-4">${item.name}</div>
-                    ${ isCompleted 
-                        ? `<div class="text-gray-500">플레이 완료</div>` 
-                        : `<button onclick="App.runGame2Start(${t.id})" class="w-full btn-gold py-2 rounded">START</button>`
-                    }
-                `;
+                    ${done ? `<div class="text-gray-500">플레이 완료</div>` : `<button onclick="App.runGame2(${t.id})" class="w-full btn-gold py-2 rounded">START</button>`}`;
             }
-
-            gridHtml += `
-                <div class="bg-gray-900 p-6 rounded-xl border ${choice ? 'border-gold' : 'border-gray-700'} text-center">
-                    <h3 class="text-xl font-bold mb-4 text-purple-400">${t.name}</h3>
-                    ${innerHtml}
-                </div>
-            `;
+            grid += `<div class="bg-gray-900 p-6 rounded-xl border ${choice?'border-[#d4af37]':'border-gray-700'} text-center"><h3 class="text-xl font-bold mb-4 text-purple-400">${t.name}</h3>${content}</div>`;
         });
 
         el.innerHTML = `
             <div class="w-full max-w-6xl fade-in">
-                <h2 class="text-3xl font-bold text-center text-gold mb-8">Game 2. 손등 릴레이</h2>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                    ${gridHtml}
-                </div>
-                <div class="text-center">
-                    <button onclick="App.router('menu')" class="text-gray-500 hover:text-white underline">메뉴로 돌아가기</button>
-                </div>
+                <h2 class="text-3xl font-bold text-center text-[#d4af37] mb-8">Game 2. 손등 릴레이</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">${grid}</div>
+                <div class="text-center"><button onclick="App.router('menu')" class="text-gray-500 underline">메뉴로 돌아가기</button></div>
             </div>
         `;
     },
-
-    setGame2Choice(teamId, score) {
-        this.state.game2.teamChoices[teamId] = score;
-        this.save();
-        this.render();
+    setGame2Choice(id, val) {
+        this.state.game2.teamChoices[id] = val;
+        this.save(); this.render();
     },
-
-    runGame2Start(teamId) {
-        this.state.currentGame = {
-            type: 2,
-            teamId: teamId,
-            score: this.state.game2.teamChoices[teamId], // 난이도 점수
-            count: 0,
-            timer: 180 // 3분
-        };
+    runGame2(id) {
+        const score = this.state.game2.teamChoices[id];
+        this.state.currentGame = { type: 2, teamId: id, scorePerItem: score, count: 0 };
+        this.state.timerVal = 180;
         this.router('game2_play');
-        this.startGameTimer(180, () => this.finishGame2());
+        this.startTimer(180, () => this.finishGame2()); // 3분
     },
-
     renderGame2Play(el) {
         const game = this.state.currentGame;
-        const item = GAME_DATA.game2_items[game.score];
-        const teamName = this.state.teams.find(t=>t.id==game.teamId).name;
+        const item = GAME_DATA.game2_items[game.scorePerItem];
+        const team = this.state.teams.find(t=>t.id==game.teamId).name;
+        
+        // 현재 남은 시간을 바로 사용
+        const t = this.state.timerVal;
+        const m = Math.floor(t/60).toString().padStart(2,'0');
+        const s = (t%60).toString().padStart(2,'0');
+        const timeStr = `${m}:${s}`;
 
         el.innerHTML = `
-            <div class="w-full max-w-4xl fade-in text-center flex flex-col items-center justify-center min-h-[70vh]">
-                <h2 class="text-3xl text-purple-400 font-bold mb-4">${teamName}</h2>
-                <div class="text-5xl font-bold text-white mb-8">운반 아이템: <span class="text-gold">${item.name}</span></div>
-                
-                <div class="text-9xl font-mono font-bold text-white mb-12" id="timer-display">03:00</div>
-                
+            <div class="w-full max-w-3xl fade-in text-center flex flex-col items-center justify-center min-h-[70vh]">
+                <h2 class="text-3xl text-purple-400 font-bold mb-4">${team}</h2>
+                <div class="text-5xl font-bold text-white mb-8">아이템: <span class="text-[#d4af37]">${item.name}</span></div>
+                <div class="text-9xl font-mono font-bold text-white mb-12" id="timer-display">${timeStr}</div>
                 <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 w-full max-w-lg">
                     <div class="text-gray-400 mb-2">성공 횟수</div>
-                    <div class="text-7xl font-black text-white mb-8" id="count-display">${game.count}</div>
+                    <div class="text-7xl font-black text-white mb-8" id="count">${game.count}</div>
                     <div class="flex gap-4 justify-center">
-                        <button onclick="App.game2Count(-1)" class="w-20 h-20 rounded-full bg-gray-700 text-3xl font-bold hover:bg-gray-600">-</button>
-                        <button onclick="App.game2Count(1)" class="w-20 h-20 rounded-full bg-green-600 text-3xl font-bold hover:bg-green-500 shadow-lg">+</button>
+                        <button onclick="App.game2Count(-1)" class="w-20 h-20 rounded-full bg-gray-700 text-3xl">-</button>
+                        <button onclick="App.game2Count(1)" class="w-20 h-20 rounded-full bg-green-600 text-3xl shadow-lg">+</button>
                     </div>
                 </div>
-                <button onclick="App.finishGame2()" class="mt-8 text-red-500 hover:text-red-400 border border-red-900 px-4 py-2 rounded">게임 조기 종료</button>
+                <button onclick="App.finishGame2()" class="mt-8 text-red-500 border border-red-900 px-4 py-2 rounded">조기 종료</button>
             </div>
         `;
     },
-
-    game2Count(delta) {
-        const game = this.state.currentGame;
-        if(game.count + delta >= 0) {
-            game.count += delta;
-            document.getElementById('count-display').innerText = game.count;
-        }
+    game2Count(d) {
+        const g = this.state.currentGame;
+        if(g.count+d >=0) { g.count+=d; document.getElementById('count').innerText = g.count; }
     },
-
     finishGame2() {
-        clearInterval(this.state.timer);
+        if(this.state.timer) clearInterval(this.state.timer);
         const game = this.state.currentGame;
-        const totalScore = game.count * game.score; // 횟수 * 난이도점수
-
+        const total = game.count * game.scorePerItem;
         if(!this.state.game2.completed.includes(game.teamId)) {
             this.state.game2.completed.push(game.teamId);
-            this.updateScore(game.teamId, totalScore);
+            this.addScore(game.teamId, total);
         }
-
-        const root = document.getElementById('app-root');
-        root.innerHTML = `
-            <div class="text-center fade-in">
-                <h2 class="text-4xl font-bold text-gold mb-8">Time's Up!</h2>
-                <div class="text-2xl mb-4 text-gray-300">획득 점수</div>
-                <div class="text-8xl font-black text-white mb-4">${totalScore} 점</div>
-                <div class="text-gray-500 mb-12">(${game.count}회 성공 x ${game.score}점)</div>
-                <button onclick="App.router('game2')" class="btn-gold px-12 py-4 rounded-full text-xl">현황판 이동</button>
-            </div>
-        `;
+        this.state.lastResult = { title: "Time's Up!", team: this.state.teams.find(t=>t.id==game.teamId).name, score: total, desc: `(${game.count}개 x ${game.scorePerItem}점)`, next: 'game2' };
+        this.router('game2_result');
     },
 
-    // === GAME 3: 줄줄이 그려요 ===
+    // --- Game 3 ---
     renderGame3SelectTeam(el) {
-        const teamHtml = this.state.teams.map(t => `
-            <button onclick="App.runGame3Setup(${t.id})" class="p-8 bg-gray-800 border border-gray-600 rounded-xl hover:border-gold hover:bg-gray-700 transition-all">
-                <div class="text-3xl font-bold text-white mb-2">${t.name}</div>
-                <div class="text-gold">현재 ${t.score}점</div>
-            </button>
-        `).join('');
-
+        const html = this.state.teams.map(t => `<button onclick="App.runGame3Setup(${t.id})" class="p-8 bg-gray-800 border border-gray-600 rounded-xl hover:border-[#d4af37] hover:bg-gray-700 transition-all"><div class="text-3xl font-bold text-white mb-2">${t.name}</div><div class="text-[#d4af37]">현재 ${t.score}점</div></button>`).join('');
         el.innerHTML = `
             <div class="w-full max-w-5xl fade-in text-center">
-                <h2 class="text-3xl font-bold text-gold mb-10">Game 3. 줄줄이 그려요</h2>
-                <div class="grid grid-cols-2 gap-6 mb-12">
-                    ${teamHtml}
-                </div>
-                <button onclick="App.router('menu')" class="text-gray-500 hover:text-white underline">메뉴로 돌아가기</button>
+                <h2 class="text-3xl font-bold text-[#d4af37] mb-10">Game 3. 줄줄이 그려요</h2>
+                <div class="grid grid-cols-2 gap-6 mb-12">${html}</div>
+                <button onclick="App.router('menu')" class="text-gray-500 underline">메뉴로 돌아가기</button>
             </div>
         `;
     },
-
-    runGame3Setup(teamId) {
-        this.state.currentGame = {
-            type: 3,
-            teamId: teamId,
-            level: null,
-            setIdx: null,
-            qIndex: 0,
-            correctCount: 0,
-            score: 0
-        };
+    runGame3Setup(id) {
+        this.state.currentGame = { type: 3, teamId: id, level: null, setIdx: null, qIndex: 0, setScore: 0, correctCnt: 0 };
         this.router('game3_setup');
     },
-
     renderGame3Setup(el) {
-        const game = this.state.currentGame;
-        const teamName = this.state.teams.find(t=>t.id==game.teamId).name;
-
-        // 레벨별, 세트별 버튼 생성
-        let levelsHtml = '';
-        ['A', 'B', 'C'].forEach(lvl => {
+        const team = this.state.teams.find(t=>t.id==this.state.currentGame.teamId).name;
+        let html = '';
+        ['A','B','C'].forEach(lvl => {
             const info = GAME_DATA.game3_sets[lvl];
-            let setsBtn = '';
-            info.sets.forEach((_, idx) => {
-                const setId = `${lvl}-${idx}`;
-                const isUsed = this.state.game3.usedSets.includes(setId);
-                setsBtn += `
-                    <button onclick="App.runGame3Start('${lvl}', ${idx})" ${isUsed ? 'disabled' : ''}
-                        class="w-12 h-12 rounded bg-gray-700 border border-gray-600 hover:bg-gold hover:text-black hover:border-gold disabled:opacity-30 disabled:hover:bg-gray-700 disabled:hover:text-gray-500 transition-all">
-                        ${idx+1}
-                    </button>
-                `;
+            let btns = '';
+            info.sets.forEach((_,i) => {
+                const used = this.state.game3.usedSets.includes(`${lvl}-${i}`);
+                btns += `<button onclick="App.runGame3Start('${lvl}', ${i})" ${used?'disabled':''} class="w-12 h-12 rounded bg-gray-700 border border-gray-600 hover:bg-[#d4af37] hover:text-black disabled:opacity-30">${i+1}</button>`;
             });
-
-            levelsHtml += `
-                <div class="bg-gray-900 p-6 rounded-xl border border-gray-700">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-2xl font-bold text-purple-400">Level ${lvl}</span>
-                        <span class="text-sm bg-gray-800 px-2 py-1 rounded border border-gray-600">${info.score}점/개</span>
-                    </div>
-                    <div class="flex gap-3 justify-center">${setsBtn}</div>
-                </div>
-            `;
+            html += `<div class="bg-gray-900 p-6 rounded-xl border border-gray-700"><div class="flex justify-between items-center mb-4"><span class="text-2xl font-bold text-purple-400">Level ${lvl}</span><span class="text-sm bg-gray-800 px-2 py-1 rounded border border-gray-600">${info.score}점/개</span></div><div class="flex gap-3 justify-center">${btns}</div></div>`;
         });
-
         el.innerHTML = `
             <div class="w-full max-w-4xl fade-in text-center">
-                <h2 class="text-3xl font-bold text-white mb-2">${teamName}</h2>
-                <p class="text-gray-400 mb-8">난이도와 세트를 선택하세요</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    ${levelsHtml}
-                </div>
-                <button onclick="App.router('game3')" class="text-gray-500 hover:text-white underline">팀 다시 선택</button>
+                <h2 class="text-3xl font-bold text-white mb-2">${team}</h2>
+                <p class="text-gray-400 mb-8">난이도와 세트 선택</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">${html}</div>
+                <button onclick="App.router('game3')" class="text-gray-500 underline">팀 다시 선택</button>
             </div>
         `;
     },
-
-    runGame3Start(lvl, setIdx) {
-        this.state.currentGame.level = lvl;
-        this.state.currentGame.setIdx = setIdx;
+    runGame3Start(lvl, idx) {
+        const game = this.state.currentGame;
+        game.level = lvl; game.setIdx = idx;
         this.router('game3_play');
         this.startLoopTimer();
     },
-
     startLoopTimer() {
         if(this.state.timer) clearInterval(this.state.timer);
-        let timeLeft = 10;
-        
-        const updateBar = () => {
+        let t = 10;
+        const update = () => {
             const bar = document.getElementById('loop-bar');
-            if(bar) {
-                const pct = (timeLeft / 10) * 100;
-                bar.style.width = `${pct}%`;
-                // 시각적 효과 (빨간색 경고)
-                if(timeLeft <= 3) bar.style.backgroundColor = '#ef4444';
-                else bar.style.backgroundColor = '#d4af37';
+            const txt = document.getElementById('loop-text');
+            if(bar && txt) {
+                bar.style.width = `${(t/10)*100}%`;
+                bar.style.backgroundColor = t<=3 ? '#ef4444' : '#d4af37';
+                txt.innerText = Math.ceil(t);
             }
         };
-
         this.state.timer = setInterval(() => {
-            timeLeft -= 0.1;
-            if(timeLeft <= 0) timeLeft = 10; // Loop
-            updateBar();
+            t -= 0.1;
+            if(t <= 0) t = 10;
+            update();
         }, 100);
     },
-
     renderGame3Play(el) {
         const game = this.state.currentGame;
-        const setList = GAME_DATA.game3_sets[game.level].sets[game.setIdx];
-        const currentWord = setList[game.qIndex];
-        const info = GAME_DATA.game3_sets[game.level];
-
+        const word = GAME_DATA.game3_sets[game.level].sets[game.setIdx][game.qIndex];
+        
         el.innerHTML = `
             <div class="w-full max-w-4xl fade-in flex flex-col items-center justify-center min-h-[70vh] relative text-center">
                 <div class="absolute top-0 right-0 text-gray-500 font-bold">Q${game.qIndex+1}/5</div>
-                
-                <div class="text-8xl font-black text-white mb-12 tracking-wider drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
-                    ${currentWord}
+                <div class="text-8xl font-black text-white mb-12 tracking-wider drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">${word}</div>
+                <div class="w-full max-w-2xl mb-12 relative">
+                    <div class="flex justify-between text-gray-400 mb-1"><span>Loop Timer</span><span id="loop-text" class="font-bold text-[#d4af37]">10</span></div>
+                    <div class="w-full bg-gray-800 h-4 rounded-full overflow-hidden border border-gray-600"><div id="loop-bar" class="h-full w-full bg-[#d4af37] transition-all duration-100 ease-linear"></div></div>
                 </div>
-
-                <!-- Loop Timer Bar -->
-                <div class="w-full max-w-2xl bg-gray-800 h-4 rounded-full mb-12 overflow-hidden border border-gray-600">
-                    <div id="loop-bar" class="h-full w-full bg-gold transition-colors duration-200"></div>
-                </div>
-
                 <div class="flex gap-6">
-                    <button onclick="App.game3Action(true)" class="px-10 py-5 bg-green-600 rounded-2xl font-bold text-2xl hover:bg-green-500 shadow-lg transform hover:-translate-y-1 transition-all">
-                        정답!
-                    </button>
-                    <button onclick="App.game3Action(false)" class="px-10 py-5 bg-gray-700 rounded-2xl font-bold text-2xl hover:bg-gray-600 shadow-lg transform hover:-translate-y-1 transition-all">
-                        패스
-                    </button>
+                    <button onclick="App.game3Action(true)" class="px-10 py-5 bg-green-600 rounded-2xl font-bold text-2xl hover:bg-green-500 shadow-lg transform hover:-translate-y-1 transition-all">정답!</button>
+                    <button onclick="App.game3Action(false)" class="px-10 py-5 bg-gray-700 rounded-2xl font-bold text-2xl hover:bg-gray-600 shadow-lg transform hover:-translate-y-1 transition-all">패스</button>
                 </div>
             </div>
         `;
     },
-
     game3Action(isCorrect) {
         const game = this.state.currentGame;
+        const info = GAME_DATA.game3_sets[game.level];
+        const totalQ = info.sets[game.setIdx].length;
+
         if(isCorrect) {
-            game.correctCount++;
-            const pts = GAME_DATA.game3_sets[game.level].score;
-            game.score += pts;
+            game.correctCnt++;
+            game.setScore += info.score;
         }
         game.qIndex++;
 
-        const setList = GAME_DATA.game3_sets[game.level].sets[game.setIdx];
-        if(game.qIndex >= setList.length) {
-            this.router('game3_result');
+        // Reset timer loop visually (logic handled by interval)
+        if(this.state.timer) { clearInterval(this.state.timer); this.startLoopTimer(); }
+
+        if(game.qIndex >= totalQ) {
+            this.finishGame3();
         } else {
-            this.renderGame3Play(document.getElementById('app-root'));
+            this.save();
+            this.render(); // Re-render next word
         }
     },
-
-    renderGame3Result(el) {
-        clearInterval(this.state.timer);
+    finishGame3() {
+        if(this.state.timer) clearInterval(this.state.timer);
         const game = this.state.currentGame;
-        
         const setId = `${game.level}-${game.setIdx}`;
+        
         if(!this.state.game3.usedSets.includes(setId)) {
             this.state.game3.usedSets.push(setId);
-            this.updateScore(game.teamId, game.score);
+            this.addScore(game.teamId, game.setScore);
         }
+        
+        this.state.lastResult = { title: "Round Finished!", team: this.state.teams.find(t=>t.id==game.teamId).name, score: game.setScore, desc: `${game.correctCnt}문제 정답`, next: 'game3' };
+        this.router('game3_result');
+    },
 
+    // --- Result Screen ---
+    renderResult(el, nextScene) {
+        const res = this.state.lastResult;
         el.innerHTML = `
             <div class="text-center fade-in">
-                <h2 class="text-4xl font-bold text-gold mb-8">Round Finished!</h2>
-                <div class="text-2xl mb-2 text-gray-300">맞춘 개수: ${game.correctCount}개</div>
-                <div class="text-8xl font-black text-white mb-12">${game.score} 점</div>
-                <button onclick="App.router('game3')" class="btn-gold px-12 py-4 rounded-full text-xl">현황판 이동</button>
+                <h2 class="text-4xl font-bold text-[#d4af37] mb-8">${res.title}</h2>
+                <div class="text-2xl mb-2 text-gray-300">${res.team} 획득 점수</div>
+                <div class="text-8xl font-black text-white mb-4">${res.score} 점</div>
+                ${res.desc ? `<div class="text-gray-500 mb-12">${res.desc}</div>` : `<div class="mb-12"></div>`}
+                <button onclick="App.router('${nextScene}')" class="btn-gold px-12 py-4 rounded-full text-xl">다음으로 이동</button>
             </div>
         `;
     },
 
-    // --- UTILS ---
-    startGameTimer(duration, onFinish) {
+    // --- Timer Utility ---
+    startTimer(seconds, onFinish) {
         if(this.state.timer) clearInterval(this.state.timer);
-        let time = duration;
+        this.state.timerVal = seconds;
         
-        const display = document.getElementById('timer-display');
+        const update = () => {
+            const el = document.getElementById('timer-display');
+            if(el) {
+                const m = Math.floor(this.state.timerVal/60).toString().padStart(2,'0');
+                const s = (this.state.timerVal%60).toString().padStart(2,'0');
+                el.innerText = `${m}:${s}`;
+                if(this.state.timerVal <= 10) el.classList.add('urgent-pulse');
+            }
+        };
         
+        // update(); // Initial render handles this
         this.state.timer = setInterval(() => {
-            time--;
-            if(time < 0) {
+            this.state.timerVal--;
+            update();
+            if(this.state.timerVal <= 0) {
                 clearInterval(this.state.timer);
                 if(onFinish) onFinish();
-                return;
-            }
-
-            const m = Math.floor(time / 60).toString().padStart(2, '0');
-            const s = (time % 60).toString().padStart(2, '0');
-            
-            if(display) {
-                display.innerText = `${m}:${s}`;
-                if(time <= 10) display.classList.add('urgent-pulse');
             }
         }, 1000);
     }
 };
 
-// 앱 초기화
 window.onload = () => App.init();
-
 </script>
 </body>
 </html>
